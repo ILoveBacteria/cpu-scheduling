@@ -11,9 +11,7 @@ class AbstractProcess(ABC):
         pass
 
     def __eq__(self, o: object) -> bool:
-        if issubclass(o.__class__, AbstractProcess) and isinstance(self, o.__class__):
-            return self.name == o.name
-        return False
+        return issubclass(o.__class__, AbstractProcess) and isinstance(self, o.__class__) and self.name == o.name
 
 
 class Process(AbstractProcess):
@@ -32,3 +30,16 @@ class PeriodicProcess(AbstractProcess):
 
     def __repr__(self):
         return f'{self.name} {self.burst_time} {self.period}'
+
+
+class ScheduledProcess:
+    def __init__(self, name: str, start: int, end: int):
+        self.name = name
+        self.start = start
+        self.end = end
+
+    def __repr__(self):
+        return f'{self.name} {self.start} {self.end}'
+
+    def __eq__(self, o: object) -> bool:
+        return isinstance(o, ScheduledProcess) and self.name == o.name and self.start == o.start and self.end == o.end
