@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
+from .process import ScheduledProcess
 
 
 class Algorithm(ABC):
     def __init__(self, processes: list):
-        self.processes = processes
+        self.processes = processes.copy()
 
     @abstractmethod
     def schedule(self):
@@ -15,6 +16,10 @@ class FIFO(Algorithm):
         super(FIFO, self).__init__(processes)
 
     def schedule(self) -> list:
-        result = self.processes.copy()
-        result.sort(key=lambda x: x.arrival_time)
+        self.processes.sort(key=lambda x: x.arrival_time)
+        result = []
+        time = 0
+        for i in self.processes:
+            result.append(ScheduledProcess(i.name, time, time + i.burst_time))
+            time += i.burst_time
         return result
