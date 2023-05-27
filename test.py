@@ -52,8 +52,8 @@ class MyTestCase(unittest.TestCase):
             ScheduledProcess('P1', 50, 65),
             ScheduledProcess('P0', 65, 80),
             ScheduledProcess('P2', 80, 85),
-            ScheduledProcess('P0', 85, 100),
-            ScheduledProcess('P1', 100, 115),
+            ScheduledProcess('P1', 85, 100),
+            ScheduledProcess('P0', 100, 115),
             ScheduledProcess('P2', 115, 120),
         ]
         self.assertListEqual(expected, EDF(processes).schedule())
