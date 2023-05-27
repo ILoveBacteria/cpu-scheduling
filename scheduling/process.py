@@ -27,6 +27,7 @@ class PeriodicProcess(AbstractProcess):
     def __init__(self, name: str, burst_time: int, period: int):
         super(PeriodicProcess, self).__init__(name, burst_time)
         self.period = period
+        self.deadline = period
 
     def __repr__(self):
         return f'{self.name} {self.burst_time} {self.period}'
@@ -39,7 +40,7 @@ class ScheduledProcess:
         self.end = end
 
     def __repr__(self):
-        return f'{self.name} {self.start} {self.end}'
+        return f'{self.name} {self.start}->{self.end}'
 
     def __eq__(self, o: object) -> bool:
         return isinstance(o, ScheduledProcess) and self.name == o.name and self.start == o.start and self.end == o.end
