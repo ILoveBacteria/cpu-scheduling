@@ -30,7 +30,7 @@ class PeriodicProcess(AbstractProcess):
         self.deadline = period
 
     def __repr__(self):
-        return f'{self.name} {self.burst_time} {self.period}'
+        return f'{self.name} {self.burst_time} {self.period} {self.deadline}'
 
 
 class ScheduledProcess:
