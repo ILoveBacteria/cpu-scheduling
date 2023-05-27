@@ -1,6 +1,6 @@
 import unittest
-from scheduling.process import Process, ScheduledProcess
-from scheduling.algorithm import FIFO, RR
+from scheduling.process import Process, ScheduledProcess, PeriodicProcess
+from scheduling.algorithm import FIFO, RR, EDF
 
 
 class MyTestCase(unittest.TestCase):
@@ -37,6 +37,26 @@ class MyTestCase(unittest.TestCase):
             ScheduledProcess('P4', 13, 14),
         ]
         self.assertListEqual(expected, RR(processes, 2).schedule())
+
+    def test_edf(self):
+        processes = [
+            PeriodicProcess('P0', 15, 30),
+            PeriodicProcess('P1', 15, 40),
+            PeriodicProcess('P2', 5, 50),
+        ]
+        expected = [
+            ScheduledProcess('P0', 0, 15),
+            ScheduledProcess('P1', 15, 30),
+            ScheduledProcess('P2', 30, 35),
+            ScheduledProcess('P0', 35, 50),
+            ScheduledProcess('P1', 50, 65),
+            ScheduledProcess('P0', 65, 80),
+            ScheduledProcess('P2', 80, 85),
+            ScheduledProcess('P0', 85, 100),
+            ScheduledProcess('P1', 100, 115),
+            ScheduledProcess('P2', 115, 120),
+        ]
+        self.assertListEqual(expected, EDF(processes).schedule())
 
 
 if __name__ == '__main__':
