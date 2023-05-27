@@ -1,5 +1,6 @@
+import copy
 from abc import ABC, abstractmethod
-from .process import ScheduledProcess, Process
+from .process import ScheduledProcess, Process, PeriodicProcess
 
 
 class Algorithm(ABC):
@@ -7,16 +8,16 @@ class Algorithm(ABC):
         if len(processes) == 0:
             raise ValueError('List is empty')
         self.processes = processes.copy()
-        self.processes.sort(key=lambda x: x.arrival_time)
 
     @abstractmethod
-    def schedule(self):
+    def schedule(self) -> list:
         pass
 
 
 class FIFO(Algorithm):
     def __init__(self, processes: list):
         super(FIFO, self).__init__(processes)
+        self.processes.sort(key=lambda x: x.arrival_time)
 
     def schedule(self) -> list:
         result = []
@@ -30,6 +31,7 @@ class FIFO(Algorithm):
 class RR(Algorithm):
     def __init__(self, processes: list, quantum_time: int):
         super(RR, self).__init__(processes)
+        self.processes.sort(key=lambda x: x.arrival_time)
         self.quantum_time = quantum_time
 
     def schedule(self) -> list:
@@ -66,3 +68,70 @@ class RR(Algorithm):
         end = current_time + burst
         process.burst_time -= burst
         return end, ScheduledProcess(process.name, current_time, end)
+
+
+class EDF(Algorithm):
+    def __init__(self, processes):
+        super(EDF, self).__init__(processes)
+
+    def schedule(self):
+        waiting_queue = copy.deepcopy(self.processes)
+        result = []
+        periods = self.__all_periods()
+        current_time = 0
+        paused_process = None
+
+        while len(periods) > 0 and len(waiting_queue) > 0:
+            next_period = periods[0]
+            picked_process = self.__pick_process(waiting_queue)
+            scheduled_process = self.__run_process(picked_process, current_time, next_period)
+            current_time = scheduled_process.end
+            # If this process was the resume of the last one, just change the end time
+            if paused_process and paused_process == picked_process:
+                result[-1].end = scheduled_process.end
+            else:
+                result.append(scheduled_process)
+            # Check if reached next period
+            if scheduled_process.end == next_period:
+                self.__add_new_period_process(periods.pop(0), waiting_queue)
+            # Check if the process finished or if not finished add it again to the queue
+            if picked_process.burst_time == 0:
+                paused_process = None
+            else:
+                if picked_process.name in map(lambda x: x.name, waiting_queue):     # miss
+                    paused_process = None
+                else:
+                    # Insert it to the first(higher priority with the same deadlines).
+                    waiting_queue.insert(0, picked_process)
+                    paused_process = picked_process
+
+        return result
+
+    def __run_process(self, process: Process, current_period: int, next_period: int) -> ScheduledProcess:
+        burst = min(next_period - current_period, process.burst_time)
+        scheduled = ScheduledProcess(process.name, current_period, burst + current_period)
+        process.burst_time -= burst
+        return scheduled
+
+    def __pick_process(self, waiting_queue: list) -> Process:
+        minimum_i = 0
+        for i, v in enumerate(waiting_queue):
+            if v.deadline < waiting_queue[minimum_i].deadline:
+                minimum_i = i
+        return waiting_queue.pop(minimum_i)
+
+    def __add_new_period_process(self, period: int, waiting_queue: list):
+        for i in self.processes:
+            if period % i.period == 0:
+                new_process = PeriodicProcess(i.name, i.burst_time, i.period)
+                new_process.deadline = period + new_process.period
+                waiting_queue.append(new_process)
+
+    def __all_periods(self) -> list:
+        periods = set()
+        for i in self.processes:
+            for j in range(1, 120 // i.period + 1):
+                periods.add(j * i.period)
+        periods = list(periods)
+        periods.sort()
+        return periods
