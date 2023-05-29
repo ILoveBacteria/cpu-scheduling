@@ -81,7 +81,12 @@ class EDF(Algorithm):
         current_time = 0
         paused_process = None
 
-        while len(periods) > 0 and len(waiting_queue) > 0:
+        while len(periods) > 0:
+            # Go next period if the waiting queue is empty
+            if len(waiting_queue) == 0:
+                current_time = periods.pop(0)
+                self.__add_new_period_process(current_time, waiting_queue)
+
             next_period = periods[0]
             picked_process = self.__pick_process(waiting_queue)
             scheduled_process = self.__run_process(picked_process, current_time, next_period)
