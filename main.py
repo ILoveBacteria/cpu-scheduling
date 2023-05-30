@@ -25,10 +25,10 @@ if __name__ == '__main__':
 
     result = None
     if a == 1:
-        result = FIFO(read_processes()).schedule()
+        print(FIFO(read_processes()).schedule())
     elif a == 2:
         q = int(input('Quantum time: '))
-        result = RR(read_processes(), q)
+        print(RR(read_processes(), q).schedule())
     elif a == 3:
         edf()
 
