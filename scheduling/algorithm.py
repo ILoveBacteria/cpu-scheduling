@@ -14,9 +14,9 @@ class Algorithm(ABC):
         pass
 
 
-class FIFO(Algorithm):
+class FIFS(Algorithm):
     def __init__(self, processes: list):
-        super(FIFO, self).__init__(processes)
+        super(FIFS, self).__init__(processes)
         self.processes.sort(key=lambda x: x.arrival_time)
 
     def schedule(self) -> list:

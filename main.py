@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     result = None
     if a == 1:
-        print(FIFO(read_processes()).schedule())
+        print(FIFS(read_processes()).schedule())
     elif a == 2:
         q = int(input('Quantum time: '))
         print(RR(read_processes(), q).schedule())
