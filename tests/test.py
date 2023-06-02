@@ -1,6 +1,6 @@
 import unittest
 from scheduling.process import Process, ScheduledProcess, PeriodicProcess
-from scheduling.algorithm import FIFO, RR, EDF
+from scheduling.algorithm import FIFS, RR, EDF
 
 
 class MyTestCase(unittest.TestCase):
@@ -15,7 +15,7 @@ class MyTestCase(unittest.TestCase):
             ScheduledProcess('P1', 4, 7),
             ScheduledProcess('P2', 7, 14),
         ]
-        self.assertListEqual(expected, FIFO(processes).schedule())
+        self.assertListEqual(expected, FIFS(processes).schedule())
 
     def test_round_robin(self):
         processes = [
